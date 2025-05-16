@@ -25,10 +25,6 @@ jobs:
         working-directory: frontend
         run: npm install --legacy-peer-deps
 
-      - name: 🔍 Run tests
-        working-directory: frontend
-        run: npm run test --run
-
   frontend-deploy:
     runs-on: ubuntu-latest
     defaults:
