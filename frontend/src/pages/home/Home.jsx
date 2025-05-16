@@ -1,29 +1,40 @@
-"use client";
+// import React from 'react'
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { uploadToS3 } from "@/utils/s3Upload"; // đúng tên hàm và path
+// const Home = () => {
+//   return (
+//     <div>
+//       <h1>hi</h1>
+//     </div>
+//   )
+// }
+
+// export default Home
+
+
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { uploadToS3 } from "../../utils/s3Upload.js"; // adjust the path as needed
 
 export default function Home() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("idle"); // idle | uploading | success | error
   const [query, setQuery] = useState("");
   const [result, setResult] = useState("");
-  const [uploadedFileKey, setUploadedFileKey] = useState(null); // lưu Key file upload
+  const [uploadedFileKey, setUploadedFileKey] = useState(null); // store the uploaded file key
 
-  // Redirect nếu chưa login
+  // Redirect if not logged in
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      router.replace("/login");
+      navigate("/login", { replace: true });
     }
-  }, [router]);
+  }, [navigate]);
 
   const handleFileChange = (e) => {
     if (e.target.files?.length) {
       setFile(e.target.files[0]);
-      setUploadStatus("idle"); // reset trạng thái upload khi chọn file mới
+      setUploadStatus("idle"); // reset upload status when a new file is selected
       setUploadedFileKey(null);
     }
   };
@@ -33,8 +44,8 @@ export default function Home() {
 
     try {
       setUploadStatus("uploading");
-      const uploadResult = await uploadToS3(file); // gọi hàm upload không cần idToken
-      setUploadedFileKey(uploadResult.Key); // lưu key file đã upload
+      const uploadResult = await uploadToS3(file); // upload file to S3; assumes this function is defined
+      setUploadedFileKey(uploadResult.Key); // store the returned file key
       setUploadStatus("success");
     } catch (error) {
       console.error("Upload failed:", error);
@@ -42,19 +53,19 @@ export default function Home() {
     }
   };
 
-  // Gửi query lên backend, giả sử file đã được upload trước rồi
+  // Send query to the backend; assumes file is uploaded before sending
   const handleSubmit = async () => {
     if (!query) return;
 
     const formData = new FormData();
     formData.append("query", query);
     if (uploadedFileKey) {
-      formData.append("fileKey", uploadedFileKey); // gửi key file lên backend nếu có
+      formData.append("fileKey", uploadedFileKey); // send the uploaded file key if available
     }
 
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/process", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/process`, {
         method: "POST",
         headers: {
           Authorization: token ? `Bearer ${token}` : undefined,
@@ -71,7 +82,7 @@ export default function Home() {
 
   return (
     <div className="home">
-      <div className="bg-gray-200 grid grid-rows-[1fr] items-center justify-items-center gap-16 sm:p-13">
+      <div className="bg-gray-200 grid grid-rows-[1fr] items-center justify-items-center gap-16 p-6 sm:p-13">
         <div className="w-3/4">
           <div className="upload w-full bg-white px-4 py-5 mb-6">
             <div className="upload-component p-6 bg-white rounded shadow max-w-md mx-auto">
@@ -132,7 +143,7 @@ export default function Home() {
               />
               <button
                 onClick={handleSubmit}
-                className="rounded bg-blue-400 px-4 py-2 text-white hover:bg-blue-300 hover:cursor-pointer"
+                className="rounded bg-blue-400 px-4 py-2 text-white hover:bg-blue-300 hover:cursor-pointer ml-2"
               >
                 Submit
               </button>

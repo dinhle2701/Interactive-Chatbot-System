@@ -25,9 +25,9 @@ jobs:
         working-directory: frontend
         run: npm install --legacy-peer-deps
 
-      # - name: 🔍 Run tests
-      #   working-directory: frontend
-      #   run: npm run test --run
+      - name: 🔍 Run tests
+        working-directory: frontend
+        run: npm run test --run
 
   frontend-deploy:
     runs-on: ubuntu-latest
@@ -47,10 +47,8 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build and export Next.js static site
-        run: |
-          NEXT_DISABLE_ESLINT=true npm run build
-          npm run export
+      - name: Build frontend
+        run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -61,8 +59,8 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync ./out s3://${{ secrets.NEXT_PUBLIC_AWS_S3_BUCKET }} --delete
+          aws s3 sync ./build s3://${{ secrets.REACT_APP_AWS_S3_BUCKET }} --delete
 
       - name: Create CloudFront invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.NEXT_PUBLIC_CLOUDFRONT_DISTRIBUTION }} --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.REACT_APP_CLOUDFRONT_DISTRIBUTION }} --paths "/*"
