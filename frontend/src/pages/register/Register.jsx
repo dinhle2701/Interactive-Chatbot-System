@@ -23,7 +23,7 @@ const Register = () => {
       if (err) {
         setMessage(`❌ ${err.message || JSON.stringify(err)}`)
       } else {
-        setMessage('✅ Đăng ký thành công! Đang chuyển hướng xác thực...')
+        setMessage('✅ Login successfullt! Verify redirecting...')
         setTimeout(() => {
           navigate('/verify')
         }, 1500)

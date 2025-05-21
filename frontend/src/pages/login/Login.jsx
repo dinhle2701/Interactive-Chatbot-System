@@ -13,9 +13,9 @@ const Login = () => {
 
     signIn(email, password, (err, result) => {
       if (err) {
-        setMessage(`❌ ${err.message || 'Đăng nhập thất bại'}`)
+        setMessage(`❌ ${err.message || 'Login failed'}`)
       } else {
-        setMessage('✅ Đăng nhập thành công! Đang chuyển hướng...')
+        setMessage('✅ Login successfully! Redirecting...')
         setTimeout(() => {
           navigate('/') // chuyển hướng sang trang Home
         }, 2000)
